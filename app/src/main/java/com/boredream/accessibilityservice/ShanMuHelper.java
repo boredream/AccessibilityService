@@ -31,7 +31,7 @@ public class ShanMuHelper extends MaiCaiHelper {
     }
 
     @Override
-    protected void refresh() {
+    protected void loop() {
         AccessibilityNodeInfo infoMine = getByText("我的");
         AccessibilityNodeInfo infoCart = getByText("购物车");
 
@@ -42,13 +42,11 @@ public class ShanMuHelper extends MaiCaiHelper {
         delay(1000);
     }
 
-    @Override
     protected boolean hasGoods() {
         AccessibilityNodeInfo info = getByText("补货中");
         return info == null;
     }
 
-    @Override
     protected void commitOrder() {
         // 先判断是否添加商品
         AccessibilityNodeInfo info = getByText("全选");

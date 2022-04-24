@@ -23,13 +23,6 @@ public class MaiCaiHelper {
             return;
         }
 
-        if(eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            AccessibilityNodeInfo root = service.getRootInActiveWindow();
-            if(root != null) {
-//                this.root = root;
-            }
-        }
-
         if(toggleStart(accessibilityEvent)) {
             startLoop();
         } else if(toggleEnd(accessibilityEvent)) {
@@ -51,34 +44,18 @@ public class MaiCaiHelper {
         System.out.println("start loop");
 
         start = true;
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
                 while(start) {
                     System.out.println("loop once");
-
-                    // 刷新
-                    refresh();
-
-                    // 校验是否有货
-                    if(hasGoods()) {
-                        System.out.println("有货了！");
-                        commitOrder();
-                    }
+                    loop();
                 }
-//            }
-//        }).start();
+            }
+        }).start();
     }
 
-    protected void refresh() {
-
-    }
-
-    protected boolean hasGoods() {
-        return false;
-    }
-
-    protected void commitOrder() {
+    protected void loop() {
 
     }
 
@@ -101,7 +78,9 @@ public class MaiCaiHelper {
 
     protected AccessibilityNodeInfo getByText(String text) {
         // 通过text来获取某个控件，模糊匹配
-        List<AccessibilityNodeInfo> infos = service.getRootInActiveWindow().findAccessibilityNodeInfosByText(text);
+        AccessibilityNodeInfo root = service.getRootInActiveWindow();
+        if(root == null) return null;
+        List<AccessibilityNodeInfo> infos = root.findAccessibilityNodeInfosByText(text);
         for (AccessibilityNodeInfo info : infos) {
             if(info.getText().equals(text)) {
                 return info;
@@ -112,7 +91,9 @@ public class MaiCaiHelper {
 
     protected AccessibilityNodeInfo getByTextFirst(String text) {
         // 通过text来获取某个控件，模糊匹配
-        List<AccessibilityNodeInfo> infos = service.getRootInActiveWindow().findAccessibilityNodeInfosByText(text);
+        AccessibilityNodeInfo root = service.getRootInActiveWindow();
+        if(root == null) return null;
+        List<AccessibilityNodeInfo> infos = root.findAccessibilityNodeInfosByText(text);
         if(infos != null && infos.size() > 0) {
             return infos.get(0);
         }

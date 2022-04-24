@@ -31,7 +31,7 @@ public class DingDongHelper extends MaiCaiHelper {
     }
 
     @Override
-    protected void refresh() {
+    protected void loop() {
         AccessibilityNodeInfo infoMine = getByText("我的");
         AccessibilityNodeInfo infoCart = getByText("购物车");
 
@@ -39,18 +39,24 @@ public class DingDongHelper extends MaiCaiHelper {
         delay(500);
 
         click(infoCart);
-        delay(2000);
+        delay(1500);
 
         List<AccessibilityNodeInfo> list = service.getRootInActiveWindow().findAccessibilityNodeInfosByText("去结算(");
         if(list != null && list.size() > 0) {
             // 购物车有商品
             click(list.get(0));
+            delay(1500);
 
-            delay(1000);
             AccessibilityNodeInfo commitInfo = getByText("立即支付");
-            click(commitInfo);
+            if (commitInfo == null) {
+                back();
+                delay(1000);
+                return;
+            }
 
+            click(commitInfo);
             delay(1000);
+
             if(getByText("选择送达时间") != null) {
                 // 判断今天是否已约满
                 AccessibilityNodeInfo checkInfo = null;
@@ -81,20 +87,5 @@ public class DingDongHelper extends MaiCaiHelper {
                 }
             }
         }
-    }
-
-    @Override
-    protected boolean hasGoods() {
-        return false;
-    }
-
-    @Override
-    protected void commitOrder() {
-
-    }
-
-    @Override
-    protected void delay(long time) {
-        super.delay(time * 2);
     }
 }
