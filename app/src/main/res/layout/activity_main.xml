@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="必须先打开「AccessibilityService 无障碍」权限\n然后在叮咚买菜内使用\n\n点击「吃什么」开始自动买菜\n点击「首页」停止" />
+
+    <Button
+        android:id="@+id/btn_accessibility_setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打开无障碍" />
+
+    <Button
+        android:id="@+id/btn_overlay_setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打开悬浮球" />
+
+</LinearLayout>
