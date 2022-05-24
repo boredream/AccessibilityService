@@ -3,6 +3,7 @@ package com.boredream.accessibilityservice;
 import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -102,7 +103,8 @@ public class MaiCaiHelper {
 
     protected void delay(long time) {
         try {
-            Thread.sleep(time);
+            int speed = SpeedHelper.getInstance().getSpeedInCache();
+            Thread.sleep(time * speed);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

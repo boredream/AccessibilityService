@@ -13,6 +13,13 @@ public class DingDongHelper extends MaiCaiHelper {
     }
 
     @Override
+    public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+        if(accessibilityEvent.getPackageName().equals("com.yaya.zone")) {
+            super.onAccessibilityEvent(accessibilityEvent);
+        }
+    }
+
+    @Override
     protected boolean toggleStart(AccessibilityEvent event) {
         List<CharSequence> textList = event.getText();
         if(textList.size() > 0) {
