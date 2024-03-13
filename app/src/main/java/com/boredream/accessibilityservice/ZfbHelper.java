@@ -52,56 +52,54 @@ public class ZfbHelper {
 
     private void startTask() {
         // 抢购按钮
-        getButton = findTargetNode(new TargetNodeInterface() {
-            @Override
-            public boolean isTarget(AccessibilityNodeInfo node) {
-                // 判断组件类型
-                if (!node.getClassName().equals("android.widget.TextView")) {
-                    return false;
-                }
-
-                // 判断内容
-                if (node.getText() == null) return false;
-                if (node.getText().toString().replace(" ", "").length() <= 1) return false;
-
-                // 判断位置
-                String targetBoundsInParent = "(266, 606 - 814, 722)";
-                boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, null, 5);
-                if (!samePosition) return false;
-
-                return true;
+        getButton = findTargetNode(node -> {
+            // 判断组件类型
+            if (!node.getClassName().equals("android.widget.TextView")) {
+                return false;
             }
+
+            // 判断内容
+            if (node.getText() == null) return false;
+            if (node.getText().toString().replace(" ", "").length() <= 1) return false;
+
+            // 判断位置
+            String targetBoundsInParent = "(266, 606 - 814, 722)";
+            boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, null, 5);
+            if (!samePosition) return false;
+
+            return true;
         });
 
         // 刷新按钮
-        refreshButton = findTargetNode(new TargetNodeInterface() {
-            @Override
-            public boolean isTarget(AccessibilityNodeInfo node) {
-                // 判断组件类型
-                if (!node.getClassName().equals("android.widget.Image")) {
-                    return false;
-                }
-
-                // 判断位置
-                String targetBoundsInParent = " (0, 0 - 50, 50)";
-                boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, 0, 0);
-                if (!samePosition) return false;
-
-                return true;
+        refreshButton = findTargetNode(node -> {
+            // 判断组件类型
+            if (!node.getClassName().equals("android.widget.Image")) {
+                return false;
             }
+
+            // 判断位置
+            String targetBoundsInParent = " (0, 0 - 50, 50)";
+            boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, 0, 0);
+            if (!samePosition) return false;
+
+            return true;
         });
+
+        if(refreshButton == null || getButton == null) {
+            Log.i("DDD", "button not get~ stop");
+            return;
+        }
 
         Date date = new Date(System.currentTimeMillis() + 5000);
-        executeTaskAtTime(date, new Runnable() {
-            @Override
-            public void run() {
-                stopLoop = false;
-                startTask();
-            }
-        });
+        executeTaskAtTime(date, this::startLoop);
     }
 
     private boolean stopLoop;
+    private void startLoop() {
+        stopLoop = false;
+        clickRefresh();
+    }
+
     private boolean waitClick;
     private synchronized void clickRefresh() {
         if(stopLoop) return;
@@ -132,7 +130,7 @@ public class ZfbHelper {
                 .replace("(", "")
                 .replace(")", "");
         String leftTop = targetBoundsInParent.split("-")[0];
-        String rightBottom = targetBoundsInParent.split("-")[0];
+        String rightBottom = targetBoundsInParent.split("-")[1];
         Rect rect = new Rect();
         node.getBoundsInParent(rect);
         return comparePosition(rect.left, rect.top, rect.right, rect.bottom,
