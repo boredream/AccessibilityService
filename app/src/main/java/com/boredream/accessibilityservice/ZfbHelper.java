@@ -285,64 +285,6 @@ public class ZfbHelper {
         return new Date(calendar.getTimeInMillis());
     }
 
-    // 准备抢票，在既定时间点击按钮
-    private void readyToGetTicket() {
-        stopFlag = false;
-        Log.i("DDD", "readyToGetTicket");
-        // 按要求找到target
-        final AccessibilityNodeInfo targetNode = findTargetNode(new TargetNodeInterface() {
-            @Override
-            public boolean isTarget(AccessibilityNodeInfo node) {
-                // FIXME: 2024/3/11
-                return node != null && node.getText() != null && node.getText().toString().equals("查看所有订单");
-//                if (node.getClassName().equals("android.widget.Image")) {
-//                    Rect rect = new Rect();
-//                    node.getBoundsInScreen(rect);
-//                    return rect.bottom == 1080 && rect.right == 1080;
-//                }
-//                return false;
-            }
-        });
-        if (targetNode == null) {
-            Log.i("DDD", "未找到抢票入口！");
-            return;
-        }
-
-        // 定时执行target
-//        Date date = getTodayTime(12, 0, 0, -1000);
-        Date date = new Date(System.currentTimeMillis() + 5000);
-        executeTaskAtTime(date, new Runnable() {
-            @Override
-            public void run() {
-                Log.i("DDD", "进入抢券模块！");
-                targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            }
-        });
-    }
-
-    // 抢票，在既定时间点击按钮
-    private synchronized void getTicket() {
-        // 延迟？循环？
-        delay(100);
-
-        AccessibilityNodeInfo targetNode = findTargetNode(new TargetNodeInterface() {
-            @Override
-            public boolean isTarget(AccessibilityNodeInfo node) {
-                return node != null && node.getText() != null && node.getText().toString().equals("去点单");
-//                return "android.widget.Button".contentEquals(node.getClassName());
-            }
-        });
-        if (targetNode == null) {
-            // 因为可能加载多个页面，其中有按钮的很少
-//            Log.i("DDD", "未找到抢票按钮！");
-            return;
-        }
-
-        Log.i("DDD", "点击抢票按钮！");
-        targetNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        stopFlag = true;
-    }
-
     private AccessibilityNodeInfo findTargetNode(TargetNodeInterface targetNodeInterface) {
         AccessibilityNodeInfo root = service.getRootInActiveWindow();
         LinkedList<AccessibilityNodeInfo> queue = new LinkedList<>();
