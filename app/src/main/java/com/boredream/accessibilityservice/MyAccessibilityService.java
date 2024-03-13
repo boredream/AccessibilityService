@@ -11,14 +11,14 @@ import org.greenrobot.eventbus.ThreadMode;
 public class MyAccessibilityService extends AccessibilityService {
 
 //    private WechatHelper helper;
-    private ZfbHelper helper;
+    private WeinuonaHelper helper;
     private HelperFloatView helperFloatView;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        helper = new ZfbHelper(this);
+        helper = new WeinuonaHelper(this);
         helperFloatView = new HelperFloatView(this);
         EventBus.getDefault().register(this);
 

@@ -14,112 +14,40 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ZfbHelper {
+public class WeinuonaHelper {
 
     protected AccessibilityService service;
-    private AccessibilityNodeInfo getButton;
-    private AccessibilityNodeInfo refreshButton;
 
-    public ZfbHelper(AccessibilityService service) {
+    public WeinuonaHelper(AccessibilityService service) {
         this.service = service;
     }
 
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        CharSequence packageName = accessibilityEvent.getPackageName();
-        if (packageName != null && !"com.eg.android.AlipayGphone".contentEquals(packageName)) {
-            return;
-        }
-
-        int eventType = accessibilityEvent.getEventType();
-        if (eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            // 过滤不必要的event
-            return;
-        }
-//        if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-//            // 看需求放开
-//            return;
-//        }
-
-        Log.i("DDD", accessibilityEvent + "\n === click source " + accessibilityEvent.getSource());
-
-        if (isPageLoaded(accessibilityEvent)) {
-            // 如果页面加载了，尝试去找到目标按钮并点击，适当延迟
-            readyToClick();
-        }
+        
     }
 
     private void startTask() {
-        // 抢购按钮
-        getButton = findTargetNode(node -> {
-            // 判断组件类型
-            if (!node.getClassName().equals("android.widget.TextView")) {
-                return false;
-            }
-
-            // 判断内容
-            if (node.getText() == null) return false;
-            if (node.getText().toString().replace(" ", "").length() <= 1) return false;
-
-            // 判断位置
-            String targetBoundsInParent = "(266, 606 - 814, 722)";
-            boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, null, 5);
-            if (!samePosition) return false;
-
-            return true;
-        });
-
-        // 刷新按钮
-        refreshButton = findTargetNode(node -> {
+        getByText("我的").performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        delay(1000);
+        getByText("我的会员权益").performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        delay(1000);
+        AccessibilityNodeInfo goToCheckInBtn = findTargetNode(node -> {
             // 判断组件类型
             if (!node.getClassName().equals("android.widget.Image")) {
                 return false;
             }
 
             // 判断位置
-            String targetBoundsInParent = " (0, 0 - 50, 50)";
+            String targetBoundsInParent = "(0, 212 - 360, 350)";
             boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, 0, 0);
             if (!samePosition) return false;
-
             return true;
         });
 
-        if(refreshButton == null || getButton == null) {
-            Log.i("DDD", "button not get~ stop");
-            return;
-        }
-
-        Date date = new Date(System.currentTimeMillis() + 5000);
-        executeTaskAtTime(date, this::startLoop);
-    }
-
-    private boolean stopLoop;
-    private void startLoop() {
-        stopLoop = false;
-        clickRefresh();
-    }
-
-    private boolean waitClick;
-    private synchronized void clickRefresh() {
-        if(stopLoop) return;
-        // 点击刷新，并进入等待
-        Log.i("DDD", "clickRefresh");
-        refreshButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        waitClick = true;
-    }
-
-    private synchronized void readyToClick() {
-        if(stopLoop) return;
-        if(!waitClick) return;
-        // 等待页面刷新完成，开始点击按钮
-        Log.i("DDD", "readyToClick");
-        getButton.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        waitClick = false;
-
-        // 判断任务结束
-
-        // 开始下个循环
-        delay(5000);
-        clickRefresh();
+        if(goToCheckInBtn == null) return;
+        goToCheckInBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        delay(1000);
+        getByText("今天").performAction(AccessibilityNodeInfo.ACTION_CLICK);
     }
 
     // 判断目标节点是否匹配某个位置
@@ -242,9 +170,12 @@ public class ZfbHelper {
         return null;
     }
 
-    protected void delay(long time) {
+    private void delayRandom(long time) {
+        delay(time + new Random().nextInt(1000));
+    }
+
+    private void delay(long time) {
         try {
-            time += new Random().nextInt(1000);
             Log.i("DDD", "delay = " + time);
             Thread.sleep(time);
         } catch (InterruptedException e) {
