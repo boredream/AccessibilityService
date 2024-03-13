@@ -10,7 +10,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-//    private WechatHelper helper;
     private WeinuonaHelper helper;
     private HelperFloatView helperFloatView;
 

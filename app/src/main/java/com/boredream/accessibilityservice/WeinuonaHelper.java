@@ -1,10 +1,13 @@
 package com.boredream.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.GestureDescription;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -23,14 +26,87 @@ public class WeinuonaHelper {
     }
 
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        
+        CharSequence packageName = accessibilityEvent.getPackageName();
+        if (packageName != null && !"com.tencent.mm".contentEquals(packageName)) {
+            return;
+        }
+
+        int eventType = accessibilityEvent.getEventType();
+        if (eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            // 过滤不必要的event
+            return;
+        }
+        if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            // 看需求放开
+            return;
+        }
+        Log.i("DDD", accessibilityEvent + "\n === click source " + accessibilityEvent.getSource());
+    }
+
+    private GestureDescription buildClick(float x, float y) {
+        Path clickPath = new Path();
+        clickPath.moveTo(x, y);
+        GestureDescription.StrokeDescription clickStroke = new GestureDescription.StrokeDescription(clickPath, 0, 1);
+        GestureDescription.Builder clickBuilder = new GestureDescription.Builder();
+        clickBuilder.addStroke(clickStroke);
+        return clickBuilder.build();
     }
 
     private void startTask() {
-        getByText("我的").performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        delay(1000);
-        getByText("我的会员权益").performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        delay(1000);
+        if (1==1) {
+            GestureDescription gesture = buildClick(200, 1500);
+            boolean dispatch = service.dispatchGesture(gesture, new AccessibilityService.GestureResultCallback() {
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    super.onCompleted(gestureDescription);
+                }
+
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    super.onCancelled(gestureDescription);
+                }
+            }, null);
+            Toast.makeText(service.getApplicationContext(), "perform gesture " + dispatch, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AccessibilityNodeInfo mineBtn = findTargetNode(node -> {
+            // 判断组件类型
+            if (!node.getClassName().equals("android.view.View")) {
+                return false;
+            }
+
+            // 判断位置
+            String targetBoundsInParent = "(0, 0 - 72, 34)";
+            boolean samePosition = targetNodePositionCheck(node, targetBoundsInParent, 0, 0);
+            if (!samePosition) return false;
+
+            CharSequence description = node.getContentDescription();
+            if(description == null || !"我的".equals(description.toString())) return false;
+
+            return true;
+        });
+        if(mineBtn == null) return;
+        mineBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        delay(3000);
+
+        AccessibilityNodeInfo memberBtn = findTargetNode(node -> {
+            // 判断组件类型
+            if (!node.getClassName().equals("android.widget.TextView")) {
+                return false;
+            }
+
+            CharSequence text = node.getText();
+            if(text == null || !"我的会员权益".equals(text.toString())) {
+                return false;
+            }
+
+            return true;
+        });
+        if(memberBtn == null) return;
+        click(memberBtn);
+        delay(3000);
+
         AccessibilityNodeInfo goToCheckInBtn = findTargetNode(node -> {
             // 判断组件类型
             if (!node.getClassName().equals("android.widget.Image")) {
@@ -43,10 +119,10 @@ public class WeinuonaHelper {
             if (!samePosition) return false;
             return true;
         });
-
         if(goToCheckInBtn == null) return;
         goToCheckInBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        delay(1000);
+
+        delay(3000);
         getByText("今天").performAction(AccessibilityNodeInfo.ACTION_CLICK);
     }
 
@@ -71,7 +147,7 @@ public class WeinuonaHelper {
     private boolean comparePosition(int left, int top, int right, int bottom,
                                     int targetLeft, int targetTop, int targetRight, int targetBottom,
                                     Integer xTolerance, Integer yTolerance) {
-        Log.i("DDD", "compare position: node=" + left + "," + top + "," + right + "," + bottom
+        Log.d("DDD", "compare position: node=" + left + "," + top + "," + right + "," + bottom
                 + " target=" + targetLeft + "," + targetTop + "," + targetRight + "," + targetBottom);
 
         // 精准匹配可以设置 tolerance 容差为 0
@@ -151,12 +227,15 @@ public class WeinuonaHelper {
         // 通过text来获取某个控件，模糊匹配
         AccessibilityNodeInfo root = service.getRootInActiveWindow();
         List<AccessibilityNodeInfo> infos = root.findAccessibilityNodeInfosByText(text);
+        AccessibilityNodeInfo target = null;
         for (AccessibilityNodeInfo info : infos) {
             if (info.getText().equals(text)) {
-                return info;
+                target = info;
+                break;
             }
         }
-        return null;
+        Log.i("DDD", "getByText " + target);
+        return target;
     }
 
     protected AccessibilityNodeInfo getByTextFirst(String text) {
