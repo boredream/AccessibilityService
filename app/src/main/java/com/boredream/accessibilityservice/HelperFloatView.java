@@ -71,7 +71,14 @@ public class HelperFloatView extends FrameLayout {
       mFloatingLayout.findViewById(R.id.btn_start).setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View v) {
-            EventBus.getDefault().post(new OverLayCtrlEvent());
+            EventBus.getDefault().post(new OverLayCtrlEvent("start"));
+         }
+      });
+
+      mFloatingLayout.findViewById(R.id.btn_get_view_tree).setOnClickListener(new OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            EventBus.getDefault().post(new OverLayCtrlEvent("getViewTree"));
          }
       });
    }

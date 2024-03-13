@@ -8,5 +8,4 @@
     android:canRequestFilterKeyEvents="true"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="100"
-    android:packageNames="com.tencent.mm"
     android:settingsActivity="com.example.android.accessibility.ServiceSettingsActivity" />

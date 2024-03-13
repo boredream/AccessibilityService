@@ -6,54 +6,97 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class WechatHelper {
+public class ZfbHelper {
     private boolean stopFlag;
     protected AccessibilityService service;
     public MediaSoundHelper soundHelper;
 
-    public WechatHelper(AccessibilityService service) {
+    public ZfbHelper(AccessibilityService service) {
         this.service = service;
         this.soundHelper = new MediaSoundHelper(service.getApplication());
     }
 
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+        CharSequence packageName = accessibilityEvent.getPackageName();
+        if (packageName != null && !"com.eg.android.AlipayGphone".contentEquals(packageName)) {
+            return;
+        }
+
         int eventType = accessibilityEvent.getEventType();
         if (eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             // 过滤不必要的event
             return;
         }
+        if (eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            // 看需求放开
+            return;
+        }
 
         Log.i("DDD", accessibilityEvent.toString());
-        if(isPageLoaded(accessibilityEvent)) {
+        if (eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+            Log.i("DDD", " === click source " + accessibilityEvent.getSource());
+        }
+
+        findTargetNode(new TargetNodeInterface() {
+            @Override
+            public boolean isTarget(AccessibilityNodeInfo node) {
+                // 通过位置寻找
+                String targetBoundsInParent = "(266, 606 - 814, 722)";
+
+                return false;
+            }
+        });
+
+        if (isPageLoaded(accessibilityEvent)) {
             // 如果页面加载了，尝试去找到目标按钮并点击，适当延迟
-            if(!stopFlag) {
+            if (!stopFlag) {
                 getTicket();
             }
         }
     }
 
+    // 判断目标节点是否匹配某个位置
+    private boolean targetNodePositionCheck(AccessibilityNodeInfo node, String targetBoundsInParent) {
+        targetBoundsInParent = targetBoundsInParent.replace(" ", "")
+                .replace("(", "")
+                .replace(")", "");
+        String leftTop = targetBoundsInParent.split("-")[0];
+        String rightBottom = targetBoundsInParent.split("-")[0];
+        return targetNodePositionCheck(node,
+                Integer.parseInt(leftTop.split(",")[0]),
+                Integer.parseInt(leftTop.split(",")[1]),
+                Integer.parseInt(rightBottom.split(",")[0]),
+                Integer.parseInt(rightBottom.split(",")[1])
+        );
+    }
+
+    // 判断目标节点是否匹配某个位置
+    private boolean targetNodePositionCheck(AccessibilityNodeInfo node,
+                                            int leftTopX, int leftTopY,
+                                            int rightBottomX, int rightBottomY) {
+
+        return false;
+    }
+
     // 是否是页面加载
     private boolean isPageLoaded(AccessibilityEvent event) {
-        if(event.getEventType() != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+        if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             return false;
         }
         AccessibilityNodeInfo source = event.getSource();
-        if(source == null) return false;
+        if (source == null) return false;
 
         Rect rect = new Rect();
         source.getBoundsInParent(rect);
-        if(rect.right != 1080 || rect.bottom != 2400) {
-           return false;
+        if (rect.right != 1080 || rect.bottom != 2400) {
+            return false;
         }
         return true;
     }
@@ -62,7 +105,7 @@ public class WechatHelper {
         LinkedList<AccessibilityNodeInfo> queue = new LinkedList<>();
         queue.add(root);
         int level = 0;
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             int size = queue.size();
             StringBuilder sbPre = new StringBuilder();
             for (int i = 0; i < level; i++) {
@@ -78,7 +121,7 @@ public class WechatHelper {
                     }
                 }
             }
-            level ++;
+            level++;
         }
     }
 
@@ -132,7 +175,11 @@ public class WechatHelper {
     }
 
     public void onEvent(OverLayCtrlEvent event) {
-        readyToGetTicket();
+        if ("getViewTree".equals(event.getCommand())) {
+            printAllNode(service.getRootInActiveWindow());
+        } else if ("start".equals(event.getCommand())) {
+
+        }
     }
 
     private void executeTaskAtTime(Date date, final Runnable runnable) {
@@ -174,7 +221,7 @@ public class WechatHelper {
 //                return false;
             }
         });
-        if(targetNode == null) {
+        if (targetNode == null) {
             Log.i("DDD", "未找到抢票入口！");
             return;
         }
@@ -245,7 +292,7 @@ public class WechatHelper {
         LinkedList<AccessibilityNodeInfo> queue = new LinkedList<>();
         queue.add(root);
         int level = 0;
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             int size = queue.size();
 //            StringBuilder sbPre = new StringBuilder();
 //            for (int i = 0; i < level; i++) {
@@ -259,13 +306,13 @@ public class WechatHelper {
                     for (int j = 0; j < node.getChildCount(); j++) {
                         queue.add(node.getChild(j));
                     }
-                    if(targetNodeInterface.isTarget(node)) {
+                    if (targetNodeInterface.isTarget(node)) {
                         Log.i("DDD", "找到目标节点 " + node);
                         return node;
                     }
                 }
             }
-            level ++;
+            level++;
         }
         return null;
     }
