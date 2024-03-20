@@ -9,11 +9,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import com.boredream.accessibilityservice.BaseHelper;
 import com.boredream.accessibilityservice.MyUtils;
 
-public class WxWrnHelper extends BaseHelper {
+public class WxWrnRedHelper extends BaseHelper {
 
    private final Handler handler;
 
-   public WxWrnHelper(AccessibilityService service) {
+   public WxWrnRedHelper(AccessibilityService service) {
       super(service);
       handler = new Handler();
    }
