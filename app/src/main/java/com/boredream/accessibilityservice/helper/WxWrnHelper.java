@@ -75,6 +75,19 @@ public class WxWrnHelper extends BaseHelper {
       });
       if(goToCheckInBtn == null) return;
       goToCheckInBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+
+      handler.postDelayed(this::step4, 3000);
+   }
+
+   private void step4() {
+      Log.i("DDD", "step4");
+      // 我的会员权益 WebView
+      int x = 500;
+      int y = 2320;
+      boolean click = MyUtils.clickAtPosition(service, x, y);
+      if(!click) return;
+
+      Log.i("DDD", "Done!");
    }
 
    @Override
