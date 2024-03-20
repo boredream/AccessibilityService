@@ -10,14 +10,13 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private WeinuonaHelper helper;
+    private BaseHelper helper;
     private HelperFloatView helperFloatView;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        helper = new WeinuonaHelper(this);
         helperFloatView = new HelperFloatView(this);
         EventBus.getDefault().register(this);
 
@@ -25,7 +24,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        helper.onAccessibilityEvent(accessibilityEvent);
+
     }
 
     @Override
@@ -52,7 +51,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void OnOverLayCtrlEvent(OverLayCtrlEvent event) {
-        helper.onEvent(event);
+
     }
 
 }

@@ -8,13 +8,20 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatSpinner;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -24,9 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btnAccessibilitySetting;
     private Button btnOverlaySetting;
-    private Button btnSpeedDown;
-    private TextView tvSpeedInfo;
-    private Button btnSpeedUp;
+    private AppCompatSpinner spinner;
+    private List<HelperTask> targetList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,22 +40,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnAccessibilitySetting = findViewById(R.id.btn_accessibility_setting);
         btnOverlaySetting = findViewById(R.id.btn_overlay_setting);
-        btnSpeedDown = findViewById(R.id.btn_speed_down);
-        tvSpeedInfo = findViewById(R.id.tv_speed_info);
-        btnSpeedUp = findViewById(R.id.btn_speed_up);
-
-        tvSpeedInfo.setText(String.format(Locale.getDefault(), SPEED_INFO, SpeedHelper.getInstance().getSpeed()));
-
-        btnSpeedDown.setOnClickListener(new View.OnClickListener() {
+        spinner = findViewById(R.id.spinner);
+        targetList = Arrays.asList(
+                new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxBreadHelper.class),
+                new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxWrnHelper.class)
+        );
+        spinner.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, R.id.tv_name, targetList));
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                tvSpeedInfo.setText(String.format(Locale.getDefault(), SPEED_INFO, SpeedHelper.getInstance().speedDown()));
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CommonConst.target = targetList.get(position);
+                Toast.makeText(MainActivity.this, "选择 " + CommonConst.target, Toast.LENGTH_SHORT).show();
             }
-        });
-        btnSpeedUp.setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onClick(View v) {
-                tvSpeedInfo.setText(String.format(Locale.getDefault(), SPEED_INFO, SpeedHelper.getInstance().speedUp()));
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -69,12 +75,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             btnAccessibilitySetting.setText("无障碍未开启");
             btnAccessibilitySetting.setEnabled(true);
-            btnAccessibilitySetting.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openAccessibilitySetting();
-                }
-            });
+            btnAccessibilitySetting.setOnClickListener(v -> openAccessibilitySetting());
         }
 
         // 申请使用悬浮球
@@ -86,15 +87,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             btnOverlaySetting.setText("悬浮球权限未开启");
             btnOverlaySetting.setEnabled(true);
-            btnOverlaySetting.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openOverlaySetting();
-                }
-            });
+            btnOverlaySetting.setOnClickListener(v -> openOverlaySetting());
         }
     }
-    
+
     public boolean isAccessibilitySettingsOn(Class<? extends AccessibilityService> clazz) {
         int accessibilityEnabled = 0;
         final String service = getPackageName() + "/" + clazz.getCanonicalName();
