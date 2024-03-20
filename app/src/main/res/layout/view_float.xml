@@ -1,32 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="#000"
     android:id="@+id/container"
+    android:layout_width="250dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_float_view"
     android:orientation="vertical"
     android:padding="8dp">
+
+    <TextView
+        android:id="@+id/tv_target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="当前任务："
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_target"
+        android:text="当前进程："
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/btn_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/tv_progress"
         android:text="开始" />
 
     <Button
         android:id="@+id/btn_get_view_tree"
         android:layout_width="wrap_content"
-        android:layout_toRightOf="@id/btn_start"
-        android:layout_marginLeft="4dp"
         android:layout_height="wrap_content"
+        android:layout_below="@id/btn_start"
         android:text="打印视图" />
+
+    <Button
+        android:id="@+id/btn_show_mask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/btn_get_view_tree"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/btn_get_view_tree"
+        android:text="探测点击遮罩" />
 
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_start"
-        android:text="运行状态：停止" />
+        android:layout_below="@+id/btn_get_view_tree"
+        android:text="运行状态：停止"
+        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/tv_info"
@@ -34,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_status"
         android:layout_marginTop="8dp"
-        android:text="日志信息" />
+        android:text="日志信息"
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>

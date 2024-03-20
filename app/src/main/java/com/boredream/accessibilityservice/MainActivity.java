@@ -40,15 +40,17 @@ public class MainActivity extends AppCompatActivity {
         spinner = findViewById(R.id.spinner);
         helperFloatView = new HelperFloatView();
         targetList = Arrays.asList(
-                new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxBreadHelper.class),
-                new HelperTask(CommonConst.TARGET_WX_WRNW_CHECKIN, WxWrnHelper.class)
+                new HelperTask(CommonConst.TARGET_WX_WRNW_CHECKIN, WxWrnHelper.class),
+                new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxBreadHelper.class)
         );
         spinner.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, R.id.tv_name, targetList));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                CommonConst.setTarget(targetList.get(position));
+                HelperTask task = targetList.get(position);
+                CommonConst.setTarget(task);
                 Toast.makeText(MainActivity.this, "选择 " + CommonConst.getTarget(), Toast.LENGTH_SHORT).show();
+                helperFloatView.setTask(task);
             }
 
             @Override

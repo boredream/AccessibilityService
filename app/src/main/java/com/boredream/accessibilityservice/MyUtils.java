@@ -8,6 +8,9 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -32,8 +35,8 @@ public class MyUtils {
     }
 
     public static boolean comparePosition(int left, int top, int right, int bottom,
-                                    int targetLeft, int targetTop, int targetRight, int targetBottom,
-                                    Integer xTolerance, Integer yTolerance) {
+                                          int targetLeft, int targetTop, int targetRight, int targetBottom,
+                                          Integer xTolerance, Integer yTolerance) {
         Log.d("DDD", "compare position: node=" + left + "," + top + "," + right + "," + bottom
                 + " target=" + targetLeft + "," + targetTop + "," + targetRight + "," + targetBottom);
 
@@ -154,6 +157,24 @@ public class MyUtils {
             }
         }
         return null;
+    }
+
+    public static boolean ignoreEvent(AccessibilityEvent event) {
+        // 过滤不必要的event
+        if (equals("com.android.systemui", event.getPackageName())
+                || equals("com.android.launcher", event.getPackageName())
+                || equals("com.android.launcher", event.getPackageName())
+                || equals("com.boredream.accessibilityservice", event.getPackageName())) {
+            return true;
+        }
+        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean equals(String target, CharSequence source) {
+        return target!= null && source != null && target.contentEquals(source);
     }
 
     public static interface TargetNodeInterface {
