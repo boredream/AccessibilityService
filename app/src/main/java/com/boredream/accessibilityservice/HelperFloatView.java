@@ -13,6 +13,8 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
+
 import org.greenrobot.eventbus.EventBus;
 
 public class HelperFloatView extends FrameLayout {

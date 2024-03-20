@@ -1,4 +1,4 @@
-package com.boredream.accessibilityservice;
+package com.boredream.accessibilityservice.event;
 
 public class LogEvent {
    private String log;

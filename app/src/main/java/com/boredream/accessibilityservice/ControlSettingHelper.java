@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
+
 import java.util.List;
 
 public class ControlSettingHelper extends MaiCaiHelper {

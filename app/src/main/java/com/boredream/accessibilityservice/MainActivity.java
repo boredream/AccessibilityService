@@ -1,9 +1,7 @@
 package com.boredream.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -11,23 +9,22 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 
+import com.boredream.accessibilityservice.event.OverlayEvent;
+import com.boredream.accessibilityservice.helper.WxBreadHelper;
+import com.boredream.accessibilityservice.helper.WxWrnHelper;
+
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    public static final String SPEED_INFO = "操作间隔速率 %dx 倍";
 
     private Button btnAccessibilitySetting;
     private Button btnOverlaySetting;
@@ -49,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                CommonConst.target = targetList.get(position);
-                Toast.makeText(MainActivity.this, "选择 " + CommonConst.target, Toast.LENGTH_SHORT).show();
+                CommonConst.setTarget(targetList.get(position));
+                Toast.makeText(MainActivity.this, "选择 " + CommonConst.getTarget(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

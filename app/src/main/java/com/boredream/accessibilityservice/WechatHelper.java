@@ -6,13 +6,12 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import org.greenrobot.eventbus.EventBus;
+import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
