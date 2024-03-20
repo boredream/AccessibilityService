@@ -23,13 +23,16 @@
     <Button
         android:id="@+id/btn_accessibility_setting"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="打开无障碍" />
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/btn_overlay_setting"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="打开悬浮球" />
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

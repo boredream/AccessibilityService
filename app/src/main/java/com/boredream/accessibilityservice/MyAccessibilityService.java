@@ -6,7 +6,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.boredream.accessibilityservice.event.ChangeHelperTaskEvent;
 import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
-import com.boredream.accessibilityservice.event.OverlayEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -15,13 +14,11 @@ import org.greenrobot.eventbus.ThreadMode;
 public class MyAccessibilityService extends AccessibilityService {
 
     private BaseHelper helper;
-    private HelperFloatView helperFloatView;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        helperFloatView = new HelperFloatView(this);
         EventBus.getDefault().register(this);
     }
 
@@ -54,12 +51,6 @@ public class MyAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        helperFloatView.removeView();
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void OnOverlayEvent(OverlayEvent event) {
-        helperFloatView.addView();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

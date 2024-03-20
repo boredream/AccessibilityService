@@ -14,11 +14,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
 
-import com.boredream.accessibilityservice.event.OverlayEvent;
 import com.boredream.accessibilityservice.helper.WxBreadHelper;
 import com.boredream.accessibilityservice.helper.WxWrnHelper;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +25,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btnAccessibilitySetting;
     private Button btnOverlaySetting;
+    private Button btnOverlay;
     private AppCompatSpinner spinner;
     private List<HelperTask> targetList;
+    private HelperFloatView helperFloatView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +36,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnAccessibilitySetting = findViewById(R.id.btn_accessibility_setting);
         btnOverlaySetting = findViewById(R.id.btn_overlay_setting);
+        btnOverlay = findViewById(R.id.btn_overlay);
         spinner = findViewById(R.id.spinner);
+        helperFloatView = new HelperFloatView();
         targetList = Arrays.asList(
                 new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxBreadHelper.class),
-                new HelperTask(CommonConst.TARGET_WX_BREAD_FREE, WxWrnHelper.class)
+                new HelperTask(CommonConst.TARGET_WX_WRNW_CHECKIN, WxWrnHelper.class)
         );
         spinner.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, R.id.tv_name, targetList));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -55,15 +56,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        btnOverlay.setOnClickListener(v -> {
+            if (helperFloatView.isShown()) helperFloatView.removeView();
+            else helperFloatView.addView();
+            refreshBtn();
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        refreshSetting();
+        refreshBtn();
     }
 
-    private void refreshSetting() {
+    private void refreshBtn() {
         // 申请使用无障碍服务
         boolean accessibilitySettingsOn = isAccessibilitySettingsOn(MyAccessibilityService.class);
         if (accessibilitySettingsOn) {
@@ -80,11 +86,16 @@ public class MainActivity extends AppCompatActivity {
         if (isOverlayOpen) {
             btnOverlaySetting.setText("悬浮球权限已开启");
             btnOverlaySetting.setEnabled(false);
-            EventBus.getDefault().post(new OverlayEvent());
         } else {
             btnOverlaySetting.setText("悬浮球权限未开启");
             btnOverlaySetting.setEnabled(true);
             btnOverlaySetting.setOnClickListener(v -> openOverlaySetting());
+        }
+
+        if (helperFloatView.isShown()) {
+            btnOverlay.setText("关闭悬浮球");
+        } else {
+            btnOverlay.setText("打开悬浮球");
         }
     }
 
