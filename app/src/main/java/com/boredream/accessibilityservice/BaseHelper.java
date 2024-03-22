@@ -5,6 +5,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 public abstract class BaseHelper {
 
+   protected boolean stopFlag;
    protected AccessibilityService service;
 
    public BaseHelper(AccessibilityService service) {
