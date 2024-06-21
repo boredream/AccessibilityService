@@ -7,7 +7,6 @@ import android.view.accessibility.AccessibilityEvent;
 
 import com.boredream.accessibilityservice.event.ChangeHelperTaskEvent;
 import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
-import com.boredream.accessibilityservice.event.OverlayEvent;
 import com.boredream.accessibilityservice.event.OverlayInfoUpdateEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -16,22 +15,16 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class MyAccessibilityService extends AccessibilityService {
 
-    private BaseHelper helper;
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         EventBus.getDefault().register(this);
-        helper = CommonConst.getTarget().getHelper(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void OnChangeHelperTaskEvent(ChangeHelperTaskEvent event) {
-        // 切换helper后，重新绑定
-        helper = null;
-        HelperTask target = CommonConst.getTarget();
-        helper = target.getHelper(this);
+
     }
 
     private String currentProgress;
@@ -54,8 +47,8 @@ public class MyAccessibilityService extends AccessibilityService {
             currentProgress = event.getPackageName().toString();
         }
 
-        if (helper != null) {
-            helper.onAccessibilityEvent(event);
+        if (CommonConst.curTask != null) {
+            CommonConst.curTask.onAccessibilityEvent(event);
         }
     }
 
@@ -80,8 +73,8 @@ public class MyAccessibilityService extends AccessibilityService {
         if ("getViewTree".equals(event.getCommand())) {
             MyUtils.printAllNode(getRootInActiveWindow());
         } else if ("start".equals(event.getCommand())) {
-            if (helper != null) {
-                helper.start();
+            if (CommonConst.curTask != null) {
+                CommonConst.curTask.start();
             }
         }
     }

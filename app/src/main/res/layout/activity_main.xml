@@ -13,6 +13,12 @@
         android:layout_marginBottom="32dp"
         android:text="必须先打开「AccessibilityService 无障碍」权限\n然后在目标应用使用" />
 
+    <Button
+        android:id="@+id/btn_refresh_tasker"
+        android:text="重新加载脚本文件"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/spinner"
         android:layout_width="match_parent"

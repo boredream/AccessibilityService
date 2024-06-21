@@ -3,13 +3,13 @@ package com.boredream.accessibilityservice;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.boredream.accessibilityservice.databinding.ViewFloatBinding;
 import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
 import com.boredream.accessibilityservice.event.OverlayInfoUpdateEvent;
 
@@ -18,14 +18,11 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class HelperFloatView {
 
-    private WindowManager mWindowManager;
+    private WindowManager wm;
     private WindowManager.LayoutParams wmParams;
     private View maskView;
-    private View mFloatingLayout;
-    private View container;
-    private TextView tvTarget;
-    private TextView tvProgress;
-
+    private View floatingView;
+    private ViewFloatBinding viewFloatingBinding;
     public HelperFloatView() {
         initWindow();
     }
@@ -33,25 +30,25 @@ public class HelperFloatView {
     @Subscribe
     public void OnOverlayInfoUpdate(OverlayInfoUpdateEvent event) {
         if (event.getProgress() != null) {
-            tvProgress.setText("当前进程：" + event.getProgress());
+            viewFloatingBinding.tvProgress.setText("当前进程：" + event.getProgress());
         }
     }
 
     public void addView() {
         // 添加悬浮窗的视图
-        mWindowManager.addView(mFloatingLayout, wmParams);
+        wm.addView(floatingView, wmParams);
         EventBus.getDefault().register(this);
     }
 
     public boolean isShown() {
-        return mFloatingLayout.isShown();
+        return floatingView.isShown();
     }
 
     public void removeView() {
         EventBus.getDefault().unregister(this);
-        if (mFloatingLayout != null) {
+        if (floatingView != null) {
             // 移除悬浮窗口
-            mWindowManager.removeView(mFloatingLayout);
+            wm.removeView(floatingView);
         }
     }
 
@@ -60,41 +57,40 @@ public class HelperFloatView {
      */
     @SuppressLint("ClickableViewAccessibility")
     private void initWindow() {
-        mWindowManager = (WindowManager) AppKeeper.getApp().getSystemService(Context.WINDOW_SERVICE);
+        wm = (WindowManager) AppKeeper.getApp().getSystemService(Context.WINDOW_SERVICE);
         wmParams = getParams();//设置好悬浮窗的参数
         wmParams.x = 0;
         wmParams.y = 0;
         // 获取浮动窗口视图所在布局
-        mFloatingLayout = LayoutInflater.from(AppKeeper.getApp()).inflate(R.layout.view_float, null, false);
-        //悬浮框触摸事件，设置悬浮框可拖动
-        container = mFloatingLayout.findViewById(R.id.container);
-        tvTarget = mFloatingLayout.findViewById(R.id.tv_target);
-        tvProgress = mFloatingLayout.findViewById(R.id.tv_progress);
-        container.setOnTouchListener(new FloatingListener());
+        floatingView = LayoutInflater.from(AppKeeper.getApp()).inflate(R.layout.view_float, null, false);
+        viewFloatingBinding = ViewFloatBinding.bind(floatingView);
 
-        mFloatingLayout.findViewById(R.id.btn_start).setOnClickListener(v ->
+        //悬浮框触摸事件，设置悬浮框可拖动
+        viewFloatingBinding.container.setOnTouchListener(new FloatingListener());
+
+        viewFloatingBinding.btnStart.setOnClickListener(v ->
                 EventBus.getDefault().post(new OverLayCtrlEvent("start")));
 
-        mFloatingLayout.findViewById(R.id.btn_get_view_tree).setOnClickListener(v ->
+        viewFloatingBinding.btnGetViewTree.setOnClickListener(v ->
                 EventBus.getDefault().post(new OverLayCtrlEvent("getViewTree")));
 
         // mask
         maskView = LayoutInflater.from(AppKeeper.getApp()).inflate(R.layout.view_mask, null, false);
         TextView tvPosition = maskView.findViewById(R.id.tv_position);
-        maskView.findViewById(R.id.tv_close).setOnClickListener(v -> mWindowManager.removeView(maskView));
+        maskView.findViewById(R.id.tv_close).setOnClickListener(v -> wm.removeView(maskView));
         maskView.setOnTouchListener((v, event) -> {
             if(event.getAction() == MotionEvent.ACTION_DOWN) {
                 tvPosition.setText(String.format("%s,%s", event.getX(), event.getY()));
             }
             return false;
         });
-        mFloatingLayout.findViewById(R.id.btn_show_mask).setOnClickListener(v -> {
-            if (maskView.isShown()) mWindowManager.removeView(maskView);
+        floatingView.findViewById(R.id.btn_show_mask).setOnClickListener(v -> {
+            if (maskView.isShown()) wm.removeView(maskView);
             else {
                 WindowManager.LayoutParams params = getParams();
                 params.width = WindowManager.LayoutParams.MATCH_PARENT;
                 params.height = WindowManager.LayoutParams.MATCH_PARENT;
-                mWindowManager.addView(maskView, params);
+                wm.addView(maskView, params);
             }
         });
     }
@@ -124,8 +120,8 @@ public class HelperFloatView {
     private int mStartX, mStartY, mStopX, mStopY; //判断悬浮窗口是否移动，这里做个标记，防止移动后松手触发了点击事件
     private boolean isMove;
 
-    public void setTask(HelperTask task) {
-        tvTarget.setText("当前任务：" + task.getTarget());
+    public void updateTask() {
+        viewFloatingBinding.tvTarget.setText(String.format("当前任务：%s", CommonConst.curTask.getTaskName()));
     }
 
     private class FloatingListener implements View.OnTouchListener {
@@ -146,7 +142,7 @@ public class HelperFloatView {
                     mTouchCurrentY = (int) event.getRawY();
                     wmParams.x += mTouchCurrentX - mTouchStartX;
                     wmParams.y += mTouchCurrentY - mTouchStartY;
-                    mWindowManager.updateViewLayout(mFloatingLayout, wmParams);
+                    wm.updateViewLayout(floatingView, wmParams);
 
                     mTouchStartX = mTouchCurrentX;
                     mTouchStartY = mTouchCurrentY;
