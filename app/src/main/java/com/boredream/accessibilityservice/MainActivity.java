@@ -19,7 +19,11 @@ import androidx.core.content.ContextCompat;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.boredream.accessibilityservice.databinding.ActivityMainBinding;
+import com.boredream.accessibilityservice.event.ChangeHelperTaskEvent;
+import com.boredream.accessibilityservice.event.LoadTaskDoneEvent;
 import com.google.gson.Gson;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +62,13 @@ public class MainActivity extends AppCompatActivity {
             taskList.add(new CommonTask(fileName));
         }
         viewBinding.spinner.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner, R.id.tv_name, taskList));
+        CommonConst.allTask = taskList;
+
         String log = "加载脚本: " + new Gson().toJson(list);
         ToastUtils.showShort(log);
         LogUtils.i(log);
+
+        EventBus.getDefault().post(new LoadTaskDoneEvent());
     }
 
     @Override
@@ -81,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 CommonConst.curTask = taskList.get(position);
-                helperFloatView.updateTask();
-                Toast.makeText(MainActivity.this, "选择 " + CommonConst.curTask.getTaskName(), Toast.LENGTH_SHORT).show();
+                EventBus.getDefault().post(new ChangeHelperTaskEvent());
             }
 
             @Override

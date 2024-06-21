@@ -101,17 +101,26 @@ public class MyUtils {
     }
 
     // 点击
-    public static boolean click(AccessibilityNodeInfo node) {
-        if (node == null) return false;
-        if (node.isClickable()) {
-            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        } else if (node.isCheckable()) {
-            return node.performAction(AccessibilityNodeInfo.ACTION_SELECT);
-        } else {
-            click(node.getParent());
-        }
-        return false;
+    public static boolean click(AccessibilityService service, AccessibilityNodeInfo node) {
+        Rect rect = new Rect();
+        node.getBoundsInScreen(rect);
+        int x = rect.left + (rect.right - rect.left) / 2;
+        int y = rect.top + (rect.bottom - rect.top) / 2;
+        return clickAtPosition(service, x, y);
     }
+
+//    // 点击
+//    public static boolean click(AccessibilityNodeInfo node) {
+//        if (node == null) return false;
+//        if (node.isClickable()) {
+//            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//        } else if (node.isCheckable()) {
+//            return node.performAction(AccessibilityNodeInfo.ACTION_SELECT);
+//        } else {
+//            click(node.getParent());
+//        }
+//        return false;
+//    }
 
     public static void delayRandom(long time) {
         delay(time + new Random().nextInt(1000));
@@ -135,6 +144,10 @@ public class MyUtils {
         GestureDescription gesture = clickBuilder.build();
         Log.i("DDD", "perform gesture " + x + "," + y);
         return service.dispatchGesture(gesture, null, null);
+    }
+
+    public static boolean scroll(AccessibilityNodeInfo node) {
+        return false;
     }
 
     public static AccessibilityNodeInfo findTargetNode(AccessibilityService service, TargetNodeInterface targetNodeInterface) {

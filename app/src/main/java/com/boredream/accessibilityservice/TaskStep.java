@@ -7,6 +7,7 @@ public class TaskStep {
     public static final String TYPE_CLICK = "click";
     public static final String TYPE_DELAY = "delay";
 
+    private String desc;
     private String type;
     private String value;
     private List<Rule> rule;
@@ -15,6 +16,7 @@ public class TaskStep {
 
         public static final String TYPE_CLASSNAME = "ClassName";
         public static final String TYPE_BOUNDS_IN_PARENT = "BoundsInParent";
+        public static final String TYPE_TEXT_MATCH = "TextMatch";
         public static final String TYPE_POSITION = "Position";
 
         private String ruleType;
@@ -36,6 +38,14 @@ public class TaskStep {
             this.ruleValue = ruleValue;
         }
 
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     public String getType() {
@@ -60,5 +70,15 @@ public class TaskStep {
 
     public void setRule(List<Rule> rule) {
         this.rule = rule;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskStep{" +
+                "desc='" + desc + '\'' +
+                ", type='" + type + '\'' +
+                ", value='" + value + '\'' +
+                ", rule=" + rule +
+                '}';
     }
 }

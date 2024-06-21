@@ -6,6 +6,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.boredream.accessibilityservice.MyAccessibilityService;
 import com.boredream.accessibilityservice.MyUtils;
@@ -16,6 +17,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonTask {
 
@@ -53,13 +56,12 @@ public class CommonTask {
 
     private void loopStep() {
         if (curStep >= stepList.size()) {
-            String log = String.format(Locale.getDefault(), "task done ! step count = %d ", stepList.size());
-            LogUtils.i(log);
-            ToastUtils.showShort(log);
+            toastAndLog(String.format(Locale.getDefault(), "task done ! step count = %d ", stepList.size()));
             return;
         }
 
         TaskStep taskStep = stepList.get(curStep);
+        toastAndLog("执行步骤 " + taskStep);
         if (TaskStep.TYPE_CLICK.equals(taskStep.getType())) {
             performClickStep(taskStep);
         } else if (TaskStep.TYPE_DELAY.equals(taskStep.getType())) {
@@ -76,9 +78,7 @@ public class CommonTask {
             int y = Integer.parseInt(position.split(",")[1]);
             boolean click = MyUtils.clickAtPosition(service, x, y);
             if (!click) {
-                String log = String.format(Locale.getDefault(), "step %d fail", curStep);
-                LogUtils.i(log);
-                ToastUtils.showShort(log);
+                toastAndLog(String.format(Locale.getDefault(), "step %d 点击失败", curStep));
             } else {
                 curStep++;
                 loopStep();
@@ -100,26 +100,41 @@ public class CommonTask {
                         if (!samePosition) {
                             return false;
                         }
+                    } else if(TaskStep.Rule.TYPE_TEXT_MATCH.equals(rule.getRuleType())) {
+                        // 判断文本
+                        CharSequence nodeText = node.getText();
+                        if(StringUtils.isEmpty(nodeText)) {
+                            nodeText = node.getContentDescription();
+                        }
+                        if(StringUtils.isEmpty(nodeText)) {
+                            return false;
+                        }
+
+                        String regex = rule.getRuleValue();
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher matcher = pattern.matcher(nodeText);
+                        return matcher.find();
                     }
                 }
                 return true;
             });
             if (mineBtn == null) {
-                String log = String.format(Locale.getDefault(), "该条件未匹配到按钮 %s", new Gson().toJson(ruleList));
-                LogUtils.i(log);
-                ToastUtils.showShort(log);
+                toastAndLog(String.format(Locale.getDefault(), "该条件未匹配到按钮 %s", new Gson().toJson(ruleList)));
             } else {
-                boolean click = mineBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                boolean click = MyUtils.click(service, mineBtn);
                 if (!click) {
-                    String log = String.format(Locale.getDefault(), "step %d fail", curStep);
-                    LogUtils.i(log);
-                    ToastUtils.showShort(log);
+                    toastAndLog(String.format(Locale.getDefault(), "step %d 点击失败", curStep));
                 } else {
                     curStep++;
                     loopStep();
                 }
             }
         }
+    }
+
+    private static void toastAndLog(String log) {
+        LogUtils.i(log);
+        ToastUtils.showShort(log);
     }
 
     private void performDelayStep(TaskStep taskStep) {

@@ -24,7 +24,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void OnChangeHelperTaskEvent(ChangeHelperTaskEvent event) {
-
+        CommonConst.curTask.setService(this);
     }
 
     private String currentProgress;

@@ -7,9 +7,15 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.boredream.accessibilityservice.databinding.ViewFloatBinding;
+import com.boredream.accessibilityservice.event.ChangeHelperTaskEvent;
+import com.boredream.accessibilityservice.event.LoadTaskDoneEvent;
 import com.boredream.accessibilityservice.event.OverLayCtrlEvent;
 import com.boredream.accessibilityservice.event.OverlayInfoUpdateEvent;
 
@@ -28,10 +34,21 @@ public class HelperFloatView {
     }
 
     @Subscribe
-    public void OnOverlayInfoUpdate(OverlayInfoUpdateEvent event) {
+    public void onOverlayInfoUpdate(OverlayInfoUpdateEvent event) {
         if (event.getProgress() != null) {
             viewFloatingBinding.tvProgress.setText("当前进程：" + event.getProgress());
         }
+    }
+
+    @Subscribe
+    public void onLoadTaskDoneEvent(LoadTaskDoneEvent event) {
+        viewFloatingBinding.spinnerTask.setAdapter(new ArrayAdapter<>(
+                floatingView.getContext(), R.layout.item_spinner, R.id.tv_name, CommonConst.allTask));
+    }
+
+    @Subscribe
+    public void onChangeHelperTaskEvent(ChangeHelperTaskEvent event) {
+        viewFloatingBinding.tvTask.setText(String.format("当前任务：%s", CommonConst.curTask.getTaskName()));
     }
 
     public void addView() {
@@ -65,6 +82,19 @@ public class HelperFloatView {
         floatingView = LayoutInflater.from(AppKeeper.getApp()).inflate(R.layout.view_float, null, false);
         viewFloatingBinding = ViewFloatBinding.bind(floatingView);
 
+        viewFloatingBinding.spinnerTask.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                CommonConst.curTask = CommonConst.allTask.get(position);
+                EventBus.getDefault().post(new ChangeHelperTaskEvent());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         //悬浮框触摸事件，设置悬浮框可拖动
         viewFloatingBinding.container.setOnTouchListener(new FloatingListener());
 
@@ -84,7 +114,7 @@ public class HelperFloatView {
             }
             return false;
         });
-        floatingView.findViewById(R.id.btn_show_mask).setOnClickListener(v -> {
+        viewFloatingBinding.btnShowMask.setOnClickListener(v -> {
             if (maskView.isShown()) wm.removeView(maskView);
             else {
                 WindowManager.LayoutParams params = getParams();
@@ -119,10 +149,6 @@ public class HelperFloatView {
     //开始时的坐标和结束时的坐标（相对于自身控件的坐标）
     private int mStartX, mStartY, mStopX, mStopY; //判断悬浮窗口是否移动，这里做个标记，防止移动后松手触发了点击事件
     private boolean isMove;
-
-    public void updateTask() {
-        viewFloatingBinding.tvTarget.setText(String.format("当前任务：%s", CommonConst.curTask.getTaskName()));
-    }
 
     private class FloatingListener implements View.OnTouchListener {
 
